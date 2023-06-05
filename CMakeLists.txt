@@ -1,16 +1,13 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(zmq_ipc_proj VERSION 0.1.0)
+project(zmq_ipc_proj VERSION 0.1.1)
 
-# 关闭测试
-#set(ZMQ_BUILD_TESTS OFF)
-#set(CPPZMQ_BUILD_TESTS OFF)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/) # 设置可执行文件输出路径
 
 # 判断操作系统
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "current platform: Linux ")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "current platform: Windows")
-    set(ENABLE_CURVE OFF) # win系统开启此设置会报错
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "current platform: Mac OS X")
 else ()
@@ -37,16 +34,8 @@ if (CROSS_COMPILE)
     message(STATUS "MYSYSROOT: " ${MYSYSROOT})
 endif ()
 
-# 设置共享库输出路径
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/lib)
-# 设置静态库输出路径
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/lib)
-
 #find cppzmq wrapper, installed by make of cppzmq
 find_package(cppzmq)
-
-#add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/libzmq)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/cppzmq)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/zmq_proxy)
 add_subdirectory(${PROJECT_SOURCE_DIR}/zmq_ipc)

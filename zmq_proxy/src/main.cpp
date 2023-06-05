@@ -73,6 +73,9 @@ int main(int argc, char **argv) {
     std::cout << "Must have tcp or ipc parameter" << std::endl;
     exit(0);
   }
+
+  std::cout << "Subscriber: \t" << subscriber << std::endl
+            << "Publisher: \t" << publisher << std::endl;
   sub_socket.bind(subscriber);
   pub_socket.bind(publisher);
 

@@ -46,4 +46,64 @@ class ZmqIpc {
   void Publish(const std::string &topic, const std::vector<uint8_t> &message);
 };
 
+extern "C" {
+#ifdef WIN32
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+typedef struct {
+  const size_t size;
+  const uint8_t *byte_arr;
+} CZmqIpcByteArr;
+
+typedef struct {
+  const size_t size;
+  const char *string;
+} CZmqIpcString;
+
+typedef void (*CZmqIpcCallbackFunc)(CZmqIpcString, CZmqIpcByteArr);
+
+// 创建对象
+DLL_EXPORT ZmqIpc *CZmqIpcNew() {
+  return new ZmqIpc;
+}
+
+// 销毁对象
+DLL_EXPORT void CZmqIpcDel(ZmqIpc *zmq_ipc) {
+  delete zmq_ipc;
+}
+
+// 实现方法
+DLL_EXPORT void CZmqIpcInit(ZmqIpc *zmq_ipc,
+                            CZmqIpcCallbackFunc callback,
+                            CZmqIpcString subscriber,
+                            CZmqIpcString publisher) {
+  std::string sub(subscriber.string, subscriber.size);
+  std::string pub(publisher.string, publisher.size);
+  auto cb = [&callback](const std::string &topic_str, const std::vector<uint8_t> &message_vec) {
+    callback({topic_str.size(), topic_str.data()},
+             {message_vec.size(), message_vec.data()});
+  };
+  zmq_ipc->Init(cb, sub, pub);
+}
+
+DLL_EXPORT void CZmqIpcSubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic) {
+  std::string top(topic.string, topic.size);
+  zmq_ipc->Subscribe(top);
+}
+
+DLL_EXPORT void CZmqIpcUnsubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic) {
+  std::string top(topic.string, topic.size);
+  zmq_ipc->Unsubscribe(top);
+}
+
+DLL_EXPORT void CZmqIpcPublish(ZmqIpc *zmq_ipc, CZmqIpcString topic, CZmqIpcByteArr message) {
+  std::string top(topic.string, topic.size);
+  std::vector<uint8_t> msg(message.byte_arr, message.byte_arr + message.size);
+  zmq_ipc->Publish(top, msg);
+}
+}
+
 #endif // ZMQ_WRAPPER_H

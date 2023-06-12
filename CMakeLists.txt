@@ -39,3 +39,4 @@ find_package(cppzmq)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/zmq_proxy)
 add_subdirectory(${PROJECT_SOURCE_DIR}/zmq_ipc)
+add_subdirectory(${PROJECT_SOURCE_DIR}/unit_test)

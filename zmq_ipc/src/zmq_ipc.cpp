@@ -26,14 +26,14 @@ ZmqIpc::~ZmqIpc() {
   }
 }
 
-void ZmqIpc::Init(CallBackFunc callback, const std::string &subscriber, const std::string &publisher) {
+void ZmqIpc::Init(ZmqCallBackFunc callback, const std::string &subscriber, const std::string &publisher) {
   sub_socket_->connect(publisher);
   pub_socket_->connect(subscriber);
   callback_ = std::move(callback);
 
   // 创建接收消息的线程
   receiver_thread_ = std::thread([&]() {
-    zmq::pollitem_t items[] = {{*(sub_socket_), 0, ZMQ_POLLIN, 0}};
+    zmq::pollitem_t items[] = {{*sub_socket_, 0, ZMQ_POLLIN, 0}};
     while (!exit_flag_) {
       {
         std::unique_lock<std::mutex> lock(sub_socket_mutex_);
@@ -77,4 +77,52 @@ void ZmqIpc::Publish(const std::string &topic, const std::vector<uint8_t> &messa
 
   pub_socket_->send(topic_msg, zmq::send_flags::sndmore);
   pub_socket_->send(message_msg, zmq::send_flags::none);
+}
+
+ZmqIpc *CZmqIpcNew() {
+  return new ZmqIpc();
+}
+
+void CZmqIpcDel(ZmqIpc *zmq_ipc) {
+  delete zmq_ipc;
+}
+
+void CZmqIpcInit(ZmqIpc *zmq_ipc,
+                 CZmqIpcCallbackFunc callback,
+                 CZmqIpcString subscriber,
+                 CZmqIpcString publisher) {
+  std::string sub(subscriber.string, subscriber.size);
+  std::string pub(publisher.string, publisher.size);
+  auto cb = [callback](const std::string &topic_str, const std::vector<uint8_t> &message_vec) {
+    callback({topic_str.size(), topic_str.data()},
+             {message_vec.size(), message_vec.data()});
+  };
+  try {
+    zmq_ipc->Init(cb, sub, pub);
+  }
+  catch (const errno_t &e) {
+    printf("zmq err: %s", zmq_strerror(e));
+  }
+  catch (const std::exception &e) {
+    printf("std err: %s", e.what());
+  }
+  catch (...) {
+    printf("Unknown err!");
+  }
+}
+
+void CZmqIpcSubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic) {
+  std::string top(topic.string, topic.size);
+  zmq_ipc->Subscribe(top);
+}
+
+void CZmqIpcUnsubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic) {
+  std::string top(topic.string, topic.size);
+  zmq_ipc->Unsubscribe(top);
+}
+
+void CZmqIpcPublish(ZmqIpc *zmq_ipc, CZmqIpcString topic, CZmqIpcByteArr message) {
+  std::string top(topic.string, topic.size);
+  std::vector<uint8_t> msg(message.byte_arr, message.byte_arr + message.size);
+  zmq_ipc->Publish(top, msg);
 }

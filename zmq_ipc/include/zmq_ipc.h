@@ -29,16 +29,16 @@ class ZmqIpc {
   std::mutex sub_socket_mutex_;               // 用于保护sub_socket_的访问，zmq::socket_t非线程安全
 
   // 回调函数类型别名
-  using CallBackFunc = std::function<void(const std::string &, const std::vector<uint8_t> &)>;
-  CallBackFunc callback_; // 接收到订阅数据时，用于处理数据的回调函数
+  using ZmqCallBackFunc = std::function<void(const std::string &, const std::vector<uint8_t> &)>;
+  ZmqCallBackFunc callback_; // 接收到订阅数据时，用于处理数据的回调函数
 
  public:
   ZmqIpc();
   virtual ~ZmqIpc();
 
-  void Init(CallBackFunc callback,
-            const std::string &subscriber = "tcp://*:5555",
-            const std::string &publisher = "tcp://*:5556");
+  void Init(ZmqCallBackFunc callback,
+            const std::string &subscriber = "tcp://localhost:5556",
+            const std::string &publisher = "tcp://localhost:5555");
 
   virtual void Subscribe(const std::string &topic);
   virtual void Unsubscribe(const std::string &topic);
@@ -66,44 +66,22 @@ typedef struct {
 typedef void (*CZmqIpcCallbackFunc)(CZmqIpcString, CZmqIpcByteArr);
 
 // 创建对象
-DLL_EXPORT ZmqIpc *CZmqIpcNew() {
-  return new ZmqIpc;
-}
+DLL_EXPORT ZmqIpc *CZmqIpcNew();
 
 // 销毁对象
-DLL_EXPORT void CZmqIpcDel(ZmqIpc *zmq_ipc) {
-  delete zmq_ipc;
-}
+DLL_EXPORT void CZmqIpcDel(ZmqIpc *zmq_ipc);
 
 // 实现方法
 DLL_EXPORT void CZmqIpcInit(ZmqIpc *zmq_ipc,
                             CZmqIpcCallbackFunc callback,
                             CZmqIpcString subscriber,
-                            CZmqIpcString publisher) {
-  std::string sub(subscriber.string, subscriber.size);
-  std::string pub(publisher.string, publisher.size);
-  auto cb = [&callback](const std::string &topic_str, const std::vector<uint8_t> &message_vec) {
-    callback({topic_str.size(), topic_str.data()},
-             {message_vec.size(), message_vec.data()});
-  };
-  zmq_ipc->Init(cb, sub, pub);
-}
+                            CZmqIpcString publisher);
 
-DLL_EXPORT void CZmqIpcSubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic) {
-  std::string top(topic.string, topic.size);
-  zmq_ipc->Subscribe(top);
-}
+DLL_EXPORT void CZmqIpcSubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic);
 
-DLL_EXPORT void CZmqIpcUnsubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic) {
-  std::string top(topic.string, topic.size);
-  zmq_ipc->Unsubscribe(top);
-}
+DLL_EXPORT void CZmqIpcUnsubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic);
 
-DLL_EXPORT void CZmqIpcPublish(ZmqIpc *zmq_ipc, CZmqIpcString topic, CZmqIpcByteArr message) {
-  std::string top(topic.string, topic.size);
-  std::vector<uint8_t> msg(message.byte_arr, message.byte_arr + message.size);
-  zmq_ipc->Publish(top, msg);
-}
+DLL_EXPORT void CZmqIpcPublish(ZmqIpc *zmq_ipc, CZmqIpcString topic, CZmqIpcByteArr message);
 }
 
 #endif // ZMQ_WRAPPER_H

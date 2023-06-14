@@ -55,7 +55,15 @@ void ZmqIpc::Init(ZmqCallBackFunc callback, const std::string &subscriber, const
             static_cast<uint8_t *>(message.data()) + message.size());
 
         // 调用回调函数处理消息
-        callback_(topic_str, message_vec);
+        try {
+          callback_(topic_str, message_vec);
+        }
+        catch (const std::exception &e) {
+          printf("std err: %s", e.what());
+        }
+        catch (...) {
+          printf("Unknown err!");
+        }
       }
     }
   });

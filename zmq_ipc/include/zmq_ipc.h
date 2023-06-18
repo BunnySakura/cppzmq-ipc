@@ -16,6 +16,8 @@ class context_t;
 class socket_t;
 }
 
+class ThreadPool;
+
 class ZmqIpc {
  private:
   ////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +26,7 @@ class ZmqIpc {
   std::unique_ptr<zmq::context_t> context_;   // 创建 ZeroMQ 上下文
   std::unique_ptr<zmq::socket_t> sub_socket_; // 订阅socket用来接收发布者发布的消息，绑定到订阅端口
   std::unique_ptr<zmq::socket_t> pub_socket_; // 发布socket用来将消息发送给订阅者，绑定到发布端口
+  std::unique_ptr<ThreadPool> thread_pool_;   // 线程池
   std::thread receiver_thread_;               // 处理订阅数据的线程对象
   std::atomic<bool> exit_flag_;               // 通知线程退出的原子操作
   std::mutex sub_socket_mutex_;               // 用于保护sub_socket_的访问，zmq::socket_t非线程安全

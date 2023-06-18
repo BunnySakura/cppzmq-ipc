@@ -2,6 +2,7 @@
 
 #include "zmq_ipc.h"
 #include "make_unique.h"
+#include "ThreadPool.h"
 
 #include <string>
 #include <utility>
@@ -15,6 +16,7 @@ ZmqIpc::ZmqIpc()
     : context_(details::make_unique<zmq::context_t>(1)),
       sub_socket_(details::make_unique<zmq::socket_t>(*context_, zmq::socket_type::sub)),
       pub_socket_(details::make_unique<zmq::socket_t>(*context_, zmq::socket_type::pub)),
+      thread_pool_(details::make_unique<ThreadPool>(8)),
       exit_flag_(false) {}
 
 ZmqIpc::~ZmqIpc() {
@@ -56,7 +58,10 @@ void ZmqIpc::Init(ZmqCallBackFunc callback, const std::string &subscriber, const
 
         // 调用回调函数处理消息
         try {
-          callback_(topic_str, message_vec);
+          // callback_(topic_str, message_vec);
+          thread_pool_->enqueue([this, topic_str, message_vec]() {
+            callback_(topic_str, message_vec);
+          });
         }
         catch (const std::exception &e) {
           printf("std err: %s", e.what());

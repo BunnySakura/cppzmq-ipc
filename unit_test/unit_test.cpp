@@ -1,11 +1,6 @@
 #include "zmq_ipc.h"
 #include "thread"
 
-// 获取代码块开始时间
-auto start_time = std::chrono::steady_clock::now();
-// 获取代码块结束时间
-auto end_time = std::chrono::steady_clock::now();
-
 static void callback_func(CZmqIpcString zmq_string, CZmqIpcByteArr zmq_bytes) {
   printf("%s\t", zmq_string.string);
   for (int i = 0; i < zmq_bytes.size; i++) {
@@ -15,10 +10,16 @@ static void callback_func(CZmqIpcString zmq_string, CZmqIpcByteArr zmq_bytes) {
 }
 
 static void callback_stress(CZmqIpcString zmq_string, CZmqIpcByteArr zmq_bytes) {
-  end_time = std::chrono::steady_clock::now();
-  // 计算运行耗时
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-  printf("Elapse: %lld ms\n", duration.count());
+  // 解析字节数组为秒数
+  uint64_t receive_time_in_seconds;
+  std::memcpy(&receive_time_in_seconds, zmq_bytes.byte_arr, sizeof(uint64_t));
+  // 将秒数转换为时间点
+  auto receive_time = std::chrono::time_point<std::chrono::system_clock>(std::chrono::seconds(receive_time_in_seconds));
+  // 计算时间差，单位为秒
+  auto elapsed_time = std::chrono::system_clock::now() - receive_time;
+  double elapsed_seconds = std::chrono::duration<double>(elapsed_time).count();
+
+  printf("Elapse: %f s\n", elapsed_seconds);
 }
 
 int main() {
@@ -38,19 +39,24 @@ int main() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 #else
-  CZmqIpcInit(zmq_ipc, callback_stress, 1,
+  CZmqIpcInit(zmq_ipc, callback_stress, 8,
               {sizeof("tcp://localhost:5555"), "tcp://localhost:5555"},
               {sizeof("tcp://localhost:5556"), "tcp://localhost:5556"});
   CZmqIpcSubscribe(zmq_ipc, {sizeof("hello"), "hello"});
-  uint8_t idx = 0;
-  auto *data = new uint8_t[1024 * 1024 * 1024];
-  while (idx != 0x10) {
-    data[0] = idx++;
+  auto *data = new uint8_t[1024 * 1024 * 100];
+  for (uint8_t idx = 0; idx < 10; idx++) {
+    // 获取当前时间
+    auto send_time = std::chrono::system_clock::now();
+    // 将时间转换为秒数
+    auto send_time_in_seconds = std::chrono::duration_cast<std::chrono::seconds>(send_time.time_since_epoch()).count();
+    // 将秒数存储为字节数组
+    std::memcpy(data, &send_time_in_seconds, sizeof(uint64_t));
+
     CZmqIpcPublish(zmq_ipc,
                    {sizeof("hello"), "hello"},
-                   {1024 * 1024 * 1024, data});
-    start_time = std::chrono::steady_clock::now();
+                   {sizeof(data), data});
     std::this_thread::sleep_for(std::chrono::seconds(1));
+    printf("%03d -> ", idx);
   }
   delete[]data;
 #endif

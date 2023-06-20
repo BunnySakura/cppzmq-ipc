@@ -16,7 +16,7 @@ ZmqIpc::ZmqIpc()
     : context_(details::make_unique<zmq::context_t>(1)),
       sub_socket_(details::make_unique<zmq::socket_t>(*context_, zmq::socket_type::sub)),
       pub_socket_(details::make_unique<zmq::socket_t>(*context_, zmq::socket_type::pub)),
-      thread_pool_(details::make_unique<ThreadPool>(8)),
+      thread_pool_(nullptr),
       exit_flag_(false) {}
 
 ZmqIpc::~ZmqIpc() {
@@ -28,9 +28,13 @@ ZmqIpc::~ZmqIpc() {
   }
 }
 
-void ZmqIpc::Init(ZmqCallBackFunc callback, const std::string &subscriber, const std::string &publisher) {
+void ZmqIpc::Init(ZmqCallBackFunc callback,
+                  size_t threads,
+                  const std::string &subscriber,
+                  const std::string &publisher) {
   sub_socket_->connect(publisher);
   pub_socket_->connect(subscriber);
+  thread_pool_ = details::make_unique<ThreadPool>(threads);
   callback_ = std::move(callback);
 
   // 创建接收消息的线程
@@ -58,7 +62,6 @@ void ZmqIpc::Init(ZmqCallBackFunc callback, const std::string &subscriber, const
 
         // 调用回调函数处理消息
         try {
-          // callback_(topic_str, message_vec);
           thread_pool_->enqueue([this, topic_str, message_vec]() {
             callback_(topic_str, message_vec);
           });
@@ -102,6 +105,7 @@ void CZmqIpcDel(ZmqIpc *zmq_ipc) {
 
 void CZmqIpcInit(ZmqIpc *zmq_ipc,
                  CZmqIpcCallbackFunc callback,
+                 size_t threads,
                  CZmqIpcString subscriber,
                  CZmqIpcString publisher) {
   std::string sub(subscriber.string, subscriber.size);
@@ -111,7 +115,7 @@ void CZmqIpcInit(ZmqIpc *zmq_ipc,
              {message_vec.size(), message_vec.data()});
   };
   try {
-    zmq_ipc->Init(cb, sub, pub);
+    zmq_ipc->Init(cb, threads, sub, pub);
   }
   catch (const errno_t &e) {
     printf("zmq err: %s", zmq_strerror(e));

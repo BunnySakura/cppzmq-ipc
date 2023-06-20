@@ -17,6 +17,7 @@ class socket_t;
 }
 
 class ThreadPool;
+// 结束前向声明
 
 class ZmqIpc {
  private:
@@ -40,6 +41,7 @@ class ZmqIpc {
   virtual ~ZmqIpc();
 
   void Init(ZmqCallBackFunc callback,
+            size_t threads = 1,
             const std::string &subscriber = "tcp://localhost:5556",
             const std::string &publisher = "tcp://localhost:5555");
 
@@ -74,16 +76,19 @@ DLL_EXPORT ZmqIpc *CZmqIpcNew();
 // 销毁对象
 DLL_EXPORT void CZmqIpcDel(ZmqIpc *zmq_ipc);
 
-// 实现方法
+// 初始化
 DLL_EXPORT void CZmqIpcInit(ZmqIpc *zmq_ipc,
                             CZmqIpcCallbackFunc callback,
+                            size_t threads,
                             CZmqIpcString subscriber,
                             CZmqIpcString publisher);
-
+// 订阅消息
 DLL_EXPORT void CZmqIpcSubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic);
 
+// 取消订阅
 DLL_EXPORT void CZmqIpcUnsubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic);
 
+// 发布消息
 DLL_EXPORT void CZmqIpcPublish(ZmqIpc *zmq_ipc, CZmqIpcString topic, CZmqIpcByteArr message);
 }
 

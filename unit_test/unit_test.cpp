@@ -24,7 +24,7 @@ static void callback_stress(CZmqIpcString zmq_string, CZmqIpcByteArr zmq_bytes) 
 int main() {
   ZmqIpc *zmq_ipc = CZmqIpcNew();
 #if 0
-  CZmqIpcInit(zmq_ipc, callback_func,
+  CZmqIpcInit(zmq_ipc, callback_func, 1,
               {sizeof("tcp://localhost:5555"), "tcp://localhost:5555"},
               {sizeof("tcp://localhost:5556"), "tcp://localhost:5556"});
   CZmqIpcSubscribe(zmq_ipc, {sizeof("world"), "world"});
@@ -38,7 +38,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 #else
-  CZmqIpcInit(zmq_ipc, callback_stress,
+  CZmqIpcInit(zmq_ipc, callback_stress, 1,
               {sizeof("tcp://localhost:5555"), "tcp://localhost:5555"},
               {sizeof("tcp://localhost:5556"), "tcp://localhost:5556"});
   CZmqIpcSubscribe(zmq_ipc, {sizeof("hello"), "hello"});

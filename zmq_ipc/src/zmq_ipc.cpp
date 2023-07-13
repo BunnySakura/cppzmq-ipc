@@ -117,7 +117,7 @@ void CZmqIpcInit(ZmqIpc *zmq_ipc,
   try {
     zmq_ipc->Init(cb, threads, sub, pub);
   }
-  catch (const errno_t &e) {
+  catch (const int32_t &e) {
     printf("zmq err: %s", zmq_strerror(e));
   }
   catch (const std::exception &e) {

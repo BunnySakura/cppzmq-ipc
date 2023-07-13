@@ -42,14 +42,14 @@ void ZmqIpc::Init(ZmqCallBackFunc callback,
     zmq::pollitem_t items[] = {{*sub_socket_, 0, ZMQ_POLLIN, 0}};
     while (!exit_flag_) {
       {
-        std::unique_lock<std::mutex> lock(sub_socket_mutex_);
+        std::lock_guard<std::mutex> lock(sub_socket_mutex_);
         zmq::poll(items, 1, std::chrono::milliseconds(50)); // 轮询器等待可读取事件,毫秒超时
       }
       if (items[0].revents & ZMQ_POLLIN) {
         zmq::message_t topic;
         zmq::message_t message;
         { // 注意避免长时间上锁影响其他线程
-          std::unique_lock<std::mutex> lock(sub_socket_mutex_);
+          std::lock_guard<std::mutex> lock(sub_socket_mutex_);
           sub_socket_->recv(topic);
           sub_socket_->recv(message);
         }

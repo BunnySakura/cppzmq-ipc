@@ -23,6 +23,10 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     message(STATUS "using Intel C++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     message(STATUS "using Visual Studio C++")
+    
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
     # VS编译会报错：https://github.com/zeromq/libzmq/issues/4127
     set(BUILD_STATIC OFF)
     set(BUILD_SHARED ON)

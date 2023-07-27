@@ -1,6 +1,8 @@
 #include "zmq_ipc.h"
 #include "thread"
 
+#include <cstring>
+
 static void callback_func(CZmqIpcString zmq_string, CZmqIpcByteArr zmq_bytes) {
   printf("%s\t", zmq_string.string);
   for (int i = 0; i < zmq_bytes.size; i++) {
@@ -14,7 +16,8 @@ static void callback_stress(CZmqIpcString zmq_string, CZmqIpcByteArr zmq_bytes) 
   uint64_t receive_time_in_seconds;
   std::memcpy(&receive_time_in_seconds, zmq_bytes.byte_arr, sizeof(uint64_t));
   // 将秒数转换为时间点
-  auto receive_time = std::chrono::time_point<std::chrono::system_clock>(std::chrono::seconds(receive_time_in_seconds));
+  auto receive_time = std::chrono::time_point<std::chrono::system_clock>(
+      std::chrono::seconds(receive_time_in_seconds));
   // 计算时间差，单位为秒
   auto elapsed_time = std::chrono::system_clock::now() - receive_time;
   double elapsed_seconds = std::chrono::duration<double>(elapsed_time).count();
@@ -48,7 +51,8 @@ int main() {
     // 获取当前时间
     auto send_time = std::chrono::system_clock::now();
     // 将时间转换为秒数
-    auto send_time_in_seconds = std::chrono::duration_cast<std::chrono::seconds>(send_time.time_since_epoch()).count();
+    auto send_time_in_seconds = std::chrono::duration_cast<std::chrono::seconds>(
+        send_time.time_since_epoch()).count();
     // 将秒数存储为字节数组
     std::memcpy(data, &send_time_in_seconds, sizeof(uint64_t));
 

@@ -1,3 +1,5 @@
 .idea/
 cmake-build-*/
 output/
+pyzmq_ipc/zmq_ipc.egg-info/
+pyzmq_ipc/dist/

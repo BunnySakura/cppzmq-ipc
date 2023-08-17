@@ -8,6 +8,14 @@ from typing import Sequence
 
 class ZmqIpc:
     def __init__(self, callback: Callable[[bytes, bytes], None], subscriber: str, publisher: str):
+        """
+        构造函数
+
+        Args:
+            callback: 收到消息时的回调函数
+            subscriber: 消息订阅者，消息去向
+            publisher: 消息发布者，消息来源
+        """
         # 初始化上下文和socket对象
         self.__context = zmq.Context()
         self.__sub_socket = self.__context.socket(zmq.SUB)

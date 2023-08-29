@@ -1,9 +1,7 @@
 import zmq
 import threading
 
-from typing import Callable
-from typing import Union
-from typing import Sequence
+from typing import Callable, Union, Sequence
 
 
 class ZmqIpc:

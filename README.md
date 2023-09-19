@@ -1,8 +1,6 @@
-# ZMQ-IPC
+# cppzmq-ipc
 
-一个基于[ZeroMQ](https://zeromq.org/)实现的订阅发布机制IPC通信库。
-
----
+一个基于[ZeroMQ]实现的订阅发布机制IPC通信库。
 
 ## 介绍
 
@@ -14,5 +12,9 @@
 
 通信代理，后台运行将所有发布的消息广播给订阅方。
 
-## 编译
-使用vcpkg安装对应平台的`cppzmq`即可正常编译。
+## 构建
+
+- 使用vcpkg安装对应平台的`cppzmq`即可正常构建。
+- 使用cmake进行构建
+
+[ZeroMQ]: https://zeromq.org/ "ZeroMQ"

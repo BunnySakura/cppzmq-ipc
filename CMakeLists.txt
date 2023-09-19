@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(zmq_ipc_proj VERSION 0.1.1)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/) # 设置可执行文件输出路径
+project(cppzmq-ipc VERSION 0.1.2)
 
 # 判断操作系统
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -23,7 +21,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     message(STATUS "using Intel C++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     message(STATUS "using Visual Studio C++")
-    
+
     add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
@@ -34,13 +32,16 @@ endif ()
 
 option(CROSS_COMPILE "Build for a different architecture" OFF)
 if (CROSS_COMPILE)
-    set(CMAKE_TOOLCHAIN_FILE ${PROJECT_SOURCE_DIR}/toolchain/toolchain.cmake)
+    set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain/toolchain.cmake)
     message(STATUS "MYSYSROOT: " ${MYSYSROOT})
 endif ()
 
-#find cppzmq wrapper, installed by make of cppzmq
-find_package(cppzmq)
+# 加载第三方模块
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(SubLibzmq)
+include(SubCppzmq)
+include(SubCxxopts)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/zmq_proxy)
-add_subdirectory(${PROJECT_SOURCE_DIR}/zmq_ipc)
-add_subdirectory(${PROJECT_SOURCE_DIR}/unit_test)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/zmq_proxy)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/zmq_ipc)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)

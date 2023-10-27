@@ -7,10 +7,14 @@ include_directories(
 
 link_directories(${PROJECT_SOURCE_DIR}/output/)
 
-file(GLOB SOURCE_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+#file(GLOB SOURCE_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_executable(${UNIT_TEST} ${SOURCE_CPP})
-set_target_properties(${UNIT_TEST} PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(${UNIT_TEST} zmq_ipc)
+add_executable("${UNIT_TEST}_server" server.cpp)
+set_target_properties("${UNIT_TEST}_server" PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries("${UNIT_TEST}_server" zmq_ipc)
+set_target_properties("${UNIT_TEST}_server" PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/bin)
 
-set_target_properties(${UNIT_TEST} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/bin)
+add_executable("${UNIT_TEST}_client" client.cpp)
+set_target_properties("${UNIT_TEST}_client" PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries("${UNIT_TEST}_client" zmq_ipc)
+set_target_properties("${UNIT_TEST}_client" PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output/bin)

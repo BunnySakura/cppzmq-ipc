@@ -40,10 +40,10 @@ class ZmqIpc {
   ZmqIpc();
   virtual ~ZmqIpc();
 
-  void Init(ZmqCallBackFunc callback,
+  void Init(ZmqCallBackFunc callback = nullptr,
             size_t threads = 1,
-            const std::string &subscriber = "tcp://localhost:5556",
-            const std::string &publisher = "tcp://localhost:5555");
+            const std::string &subscriber = "tcp://localhost:5555",
+            const std::string &publisher = "tcp://localhost:5556");
 
   virtual void Subscribe(const std::string &topic);
   virtual void Unsubscribe(const std::string &topic);

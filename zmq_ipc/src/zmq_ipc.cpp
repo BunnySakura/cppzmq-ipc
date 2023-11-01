@@ -62,9 +62,11 @@ void ZmqIpc::Init(ZmqCallBackFunc callback,
 
         // 调用回调函数处理消息
         try {
-          thread_pool_->enqueue([this, topic_str, message_vec]() {
-            callback_(topic_str, message_vec);
-          });
+          if (callback_) {
+            thread_pool_->enqueue([this, topic_str, message_vec]() {
+              callback_(topic_str, message_vec);
+            });
+          }
         }
         catch (const std::exception &e) {
           printf("std err: %s", e.what());

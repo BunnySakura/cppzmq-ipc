@@ -3,7 +3,7 @@ set(ZMQ_PROXY "zmq_proxy")
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/third_party/cppzmq
-        ${PROJECT_SOURCE_DIR}/third_party/cxxopts/include
+        ${PROJECT_SOURCE_DIR}/third_party/cpp-simple-kit/include
 )
 
 link_directories(${PROJECT_SOURCE_DIR}/output/bin)

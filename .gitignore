@@ -1,5 +1,14 @@
+# IDE
 .idea/
+.vscode/
+
+# 编译中间产物
 cmake-build-*/
+build/
+
+# 编译产物
 output/
+
+# Python打包产物
 pyzmq_ipc/zmq_ipc.egg-info/
 pyzmq_ipc/dist/

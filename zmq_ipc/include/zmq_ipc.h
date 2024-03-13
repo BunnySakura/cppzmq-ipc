@@ -51,45 +51,4 @@ class ZmqIpc {
   void Publish(const std::string &topic, const std::vector<uint8_t> &message);
 };
 
-extern "C" {
-#ifdef WIN32
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
-
-typedef struct {
-  const size_t size;
-  const uint8_t *byte_arr;
-} CZmqIpcByteArr;
-
-typedef struct {
-  const size_t size;
-  const char *string;
-} CZmqIpcString;
-
-typedef void (*CZmqIpcCallbackFunc)(CZmqIpcString, CZmqIpcByteArr);
-
-// 创建对象
-DLL_EXPORT ZmqIpc *CZmqIpcNew();
-
-// 销毁对象
-DLL_EXPORT void CZmqIpcDel(ZmqIpc *zmq_ipc);
-
-// 初始化
-DLL_EXPORT void CZmqIpcInit(ZmqIpc *zmq_ipc,
-                            CZmqIpcCallbackFunc callback,
-                            size_t threads,
-                            CZmqIpcString subscriber,
-                            CZmqIpcString publisher);
-// 订阅消息
-DLL_EXPORT void CZmqIpcSubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic);
-
-// 取消订阅
-DLL_EXPORT void CZmqIpcUnsubscribe(ZmqIpc *zmq_ipc, CZmqIpcString topic);
-
-// 发布消息
-DLL_EXPORT void CZmqIpcPublish(ZmqIpc *zmq_ipc, CZmqIpcString topic, CZmqIpcByteArr message);
-}
-
 #endif // ZMQ_WRAPPER_H

@@ -40,7 +40,6 @@ endif ()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SubLibzmq)
 include(SubCppzmq)
-include(SubCxxopts)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/zmq_proxy)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/zmq_ipc)

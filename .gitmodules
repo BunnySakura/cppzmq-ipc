@@ -4,9 +4,3 @@
 [submodule "third_party/cppzmq"]
 	path = third_party/cppzmq
 	url = https://github.com/zeromq/cppzmq.git
-[submodule "third_party/cxxopts"]
-	path = third_party/cxxopts
-	url = https://github.com/jarro2783/cxxopts.git
-[submodule "third_party/ThreadPool"]
-	path = third_party/ThreadPool
-	url = https://github.com/progschj/ThreadPool.git
